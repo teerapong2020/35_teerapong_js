@@ -3,11 +3,16 @@ const taskprice = document.getElementById('price');
 const taskimage = document.getElementById('url');
 const createbtn = document.getElementById('create-product');
 const tasklist = document.getElementById('task-list'); 
-const selectallbtn = document.getElementById('select-all');   // 3.2 connect btn select all 
+const selectallbtn = document.getElementById('select-all');   
+const addToCartBtn = document.getElementById('add-to-cart'); 
+const cartlist = document.getElementById('cart-list'); 
+const calculatePriceBtn = document.getElementById('calculate-price'); 
+const allprice = document.getElementById('totalprice');
+
+let tasks = [];
+let cart = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    let tasks = [];
-
     createbtn.addEventListener('click', () => {
         const tasktext = taskproduct.value.trim();
         const tasknumber = taskprice.value.trim();
@@ -17,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const task = {
                 id: Date.now(),
                 name: tasktext,
-                price: tasknumber,
+                price: parseFloat(tasknumber),
                 imageUrl: taskurl,
             };
 
@@ -25,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTasks(tasks);
         }
     });
-    // 3.2 select all 
+
     selectallbtn.addEventListener('click', () => {
         const checkboxes = tasklist.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach(checkbox => {
@@ -35,6 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkbox.checked = false; 
             }     
     });
+    });
+    // 3.3 section add cart 
+    addToCartBtn.addEventListener('click', () => {
+        const selectedTasks = tasks.filter((task, index) => {
+            const checkbox = tasklist.querySelectorAll('input[type="checkbox"]')[index];
+            return checkbox.checked;
+        });
+
+        cart = selectedTasks;
+        renderCart(cart);
+        
+         
+    });
+    // 3.3 section total price
+    calculatePriceBtn.addEventListener('click', () => {
+    const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+    allprice.textContent = 'You pay to: $' + totalPrice.toFixed(2);
 });
 });
 
@@ -70,5 +92,36 @@ function renderTasks(taskforrender) {
         taskimage.src = task.imageUrl;
         taskimage.style.maxWidth = '100px';
         taskbox.appendChild(taskimage);
+    });
+}
+
+// render 3.3 add cart 
+function renderCart(cartItems) {
+    cartlist.innerHTML = '';
+    cartItems.forEach(item => {
+        const cartItem = document.createElement('li');
+        cartItem.style.display = 'flex';
+        cartItem.style.gap = '10rem';
+        cartItem.style.margin = '50px';
+        cartlist.appendChild(cartItem);
+
+        const cartbox = document.createElement('div');
+        cartbox.style.background = 'rgb(203 213 225)';
+        cartbox.style.display = 'flex';
+        cartbox.style.gap = '10rem';
+        cartItem.appendChild(cartbox);
+
+        const cartText = document.createElement('h4');
+        cartText.textContent = item.name;
+        cartbox.appendChild(cartText);
+
+        const cartPrice = document.createElement('h4');
+        cartPrice.textContent = '$' + item.price;
+        cartbox.appendChild(cartPrice);
+
+        const cartImage = document.createElement('img');
+        cartImage.src = item.imageUrl;
+        cartImage.style.maxWidth = '100px';
+        cartbox.appendChild(cartImage);
     });
 }
